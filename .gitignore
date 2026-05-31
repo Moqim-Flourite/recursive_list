@@ -29,8 +29,15 @@ Thumbs.db
 .externalNativeBuild
 .cxx
 
-# Operit workspace artifacts (not part of the app)
+# Operit workspace artifacts
 .backup/
 docs/
 *.log
 /tmp/
+.operit/
+tools/aapt2/
+tools/*.json
+app_crash_log.txt
+index.html
+script.js
+styles.css
