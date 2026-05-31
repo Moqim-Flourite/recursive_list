@@ -37,8 +37,8 @@
 
 ### 构建
 ```bash
-git clone https://github.com/YOUR_USERNAME/recursive-list.git
-cd recursive-list
+git clone https://github.com/Moqim-Flourite/recursive_list.git
+cd recursive_list
 ./gradlew :app:assembleDebug
 ```
 

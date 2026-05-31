@@ -1,0 +1,48 @@
+{
+  "source": "operit_ai_test",
+  "mode": "merge",
+  "monthlyPlan": {
+    "title": "回归测试月计划",
+    "theme": "协同闭环验证",
+    "goal": "验证 merge / replace / export",
+    "startDate": "2026-04-01",
+    "endDate": "2026-04-30"
+  },
+  "weeklyPlan": {
+    "title": "回归测试周计划",
+    "goal": "验证协同导入导出",
+    "weekStartDate": "2026-04-13",
+    "weekEndDate": "2026-04-19",
+    "capacity": 480,
+    "review": ""
+  },
+  "dailyPlan": {
+    "date": "2026-04-13",
+    "summary": "第一版 merge 导入摘要",
+    "summaryMode": "overwrite",
+    "energyLevel": "HIGH",
+    "review": ""
+  },
+  "tasks": [
+    {
+      "title": "回归任务A",
+      "note": "merge首轮",
+      "estimatedMinutes": 30,
+      "timeSegment": "MORNING",
+      "isTopFocus": true
+    },
+    {
+      "title": "回归任务B",
+      "note": "merge首轮",
+      "estimatedMinutes": 45,
+      "timeSegment": "AFTERNOON",
+      "isTopFocus": false
+    }
+  ],
+  "weekPoolTasks": [
+    {
+      "title": "回归周池1",
+      "estimatedMinutes": 20
+    }
+  ]
+}

@@ -14,8 +14,7 @@ import java.net.URL
  */
 object GitHubUpdateChecker {
 
-    // TODO: 发布到 GitHub 后，把 YOUR_USERNAME/your-repo 替换成实际的仓库路径
-    private const val GITHUB_REPO = "YOUR_USERNAME/recursive-list"
+    private const val GITHUB_REPO = "Moqim-Flourite/recursive_list"
     private const val RELEASES_URL = "https://api.github.com/repos/$GITHUB_REPO/releases/latest"
 
     /**

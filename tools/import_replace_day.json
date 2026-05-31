@@ -1,0 +1,29 @@
+{
+  "source": "operit_ai_test",
+  "mode": "replace_day",
+  "weeklyPlan": {
+    "title": "回归测试周计划",
+    "goal": "验证 replace_day",
+    "weekStartDate": "2026-04-13",
+    "weekEndDate": "2026-04-19",
+    "capacity": 480,
+    "review": ""
+  },
+  "dailyPlan": {
+    "date": "2026-04-13",
+    "summary": "replace_day 后的新摘要",
+    "summaryMode": "overwrite",
+    "energyLevel": "MEDIUM",
+    "review": ""
+  },
+  "tasks": [
+    {
+      "title": "回归任务C",
+      "note": "replace_day后",
+      "estimatedMinutes": 25,
+      "timeSegment": "EVENING",
+      "isTopFocus": true
+    }
+  ],
+  "weekPoolTasks": []
+}

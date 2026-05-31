@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>moqim_list · Settings</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body data-theme="settings-page">
+  <div class="settings-wallpaper"></div>
+  <div class="settings-wallpaper settings-glow"></div>
+
+  <main class="settings-shell">
+    <section class="settings-page">
+      <header class="settings-header glass-panel">
+        <div class="settings-header-copy">
+          <div class="settings-kicker">Settings</div>
+          <h1>设置</h1>
+          <p>把外观、同步、系统适配和桌面展示能力收进更轻盈的玻璃卡片里，像 Microsoft To-Do 一样克制、呼吸、可持续扩展。</p>
+        </div>
+        <div class="settings-badges">
+          <span class="settings-badge active">HyperOS Ready</span>
+          <span class="settings-badge">Glass System</span>
+          <span class="settings-badge">Grouped Cards</span>
+        </div>
+      </header>
+
+      <section class="settings-group glass-card">
+        <div class="group-head">
+          <div>
+            <div class="group-kicker">Appearance</div>
+            <h2>个性化与外观</h2>
+          </div>
+          <span class="group-meta">Theme</span>
+        </div>
+
+        <div class="theme-palette" id="themePalette">
+          <button class="theme-orb active" data-theme-choice="light">
+            <span class="theme-orb-dot light"></span>
+            <span class="theme-orb-copy">
+              <strong>极简白</strong>
+              <small>Light</small>
+            </span>
+          </button>
+          <button class="theme-orb" data-theme-choice="dark">
+            <span class="theme-orb-dot dark"></span>
+            <span class="theme-orb-copy">
+              <strong>深邃黑</strong>
+              <small>Dark</small>
+            </span>
+          </button>
+          <button class="theme-orb" data-theme-choice="glass">
+            <span class="theme-orb-dot glass"></span>
+            <span class="theme-orb-copy">
+              <strong>通透玻璃</strong>
+              <small>Glass</small>
+            </span>
+          </button>
+          <button class="theme-orb" data-theme-choice="pixel">
+            <span class="theme-orb-dot pixel"></span>
+            <span class="theme-orb-copy">
+              <strong>复古像素</strong>
+              <small>Pixel</small>
+            </span>
+          </button>
+        </div>
+
+        <label class="setting-row toggle-row jelly-toggle-row">
+          <div class="setting-copy">
+            <div class="setting-icon">◐</div>
+            <div>
+              <strong>暗色模式跟随系统</strong>
+              <small>自动依据系统主题切换界面明暗，减少视觉割裂感。</small>
+            </div>
+          </div>
+          <input class="ios-toggle" id="followSystemToggle" type="checkbox" checked />
+          <span class="toggle-ui"></span>
+        </label>
+
+        <div class="preference-block">
+          <div class="subsection-label">Widget 默认样式</div>
+          <div class="subsection-hint">控制展示层默认风格，和展示中心中的样式语言保持一致。</div>
+          <div class="segmented-row rich-segmented-row" id="widgetStyleTabs">
+            <button class="segment-chip active" data-widget-style="minimal">
+              <span class="segment-title">极简</span>
+              <span class="segment-desc">干净线条</span>
+            </button>
+            <button class="segment-chip" data-widget-style="card">
+              <span class="segment-title">卡片</span>
+              <span class="segment-desc">微软层次</span>
+            </button>
+            <button class="segment-chip" data-widget-style="focus">
+              <span class="segment-title">专注</span>
+              <span class="segment-desc">更强聚焦</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-group glass-card">
+        <div class="group-head">
+          <div>
+            <div class="group-kicker">Preference</div>
+            <h2>偏好与启动</h2>
+          </div>
+          <span class="group-meta">Daily Flow</span>
+        </div>
+
+        <div class="preference-block">
+          <div class="subsection-label">默认首页</div>
+          <div class="subsection-hint">决定 App 冷启动后首先进入的主 Tab，减少重复跳转成本。</div>
+          <div class="segmented-row rich-segmented-row compact-four" id="defaultHomeTabs">
+            <button class="segment-chip active" data-home-tab="today">
+              <span class="segment-title">今日</span>
+              <span class="segment-desc">启动即执行</span>
+            </button>
+            <button class="segment-chip" data-home-tab="plan">
+              <span class="segment-title">计划</span>
+              <span class="segment-desc">月周结构</span>
+            </button>
+            <button class="segment-chip" data-home-tab="surface">
+              <span class="segment-title">展示</span>
+              <span class="segment-desc">桌面配置</span>
+            </button>
+            <button class="segment-chip" data-home-tab="settings">
+              <span class="segment-title">设置</span>
+              <span class="segment-desc">偏好入口</span>
+            </button>
+          </div>
+        </div>
+
+        <label class="setting-row toggle-row jelly-toggle-row">
+          <div class="setting-copy">
+            <div class="setting-icon">☀</div>
+            <div>
+              <strong>晨间视图开关</strong>
+              <small>控制首页是否优先展示晨间视图卡片与今日启动信息。</small>
+            </div>
+          </div>
+          <input class="ios-toggle" id="morningViewToggle" type="checkbox" checked />
+          <span class="toggle-ui"></span>
+        </label>
+
+        <div class="setting-row static-row disabled-row">
+          <div class="setting-copy">
+            <div class="setting-icon">≣</div>
+            <div>
+              <strong>时段标签显示设置</strong>
+              <small>后续支持自定义“晨 / 早 / 中 / 下午 / 晚”的显示文案。</small>
+            </div>
+          </div>
+          <span class="coming-tag">后续</span>
+        </div>
+      </section>
+
+      <section class="settings-group glass-card">
+        <div class="group-head">
+          <div>
+            <div class="group-kicker">Data</div>
+            <h2>数据与同步</h2>
+          </div>
+          <span class="group-meta">Backup</span>
+        </div>
+
+        <button class="setting-row nav-row">
+          <div class="setting-copy">
+            <div class="setting-icon">⤴</div>
+            <div>
+              <strong>本地数据备份</strong>
+              <small>导出当前任务、习惯、展示与偏好配置。</small>
+            </div>
+          </div>
+          <span class="nav-arrow">›</span>
+        </button>
+
+        <button class="setting-row nav-row">
+          <div class="setting-copy">
+            <div class="setting-icon">⤵</div>
+            <div>
+              <strong>恢复备份</strong>
+              <small>从本地文件恢复历史状态，适合换机或重装后回迁。</small>
+            </div>
+          </div>
+          <span class="nav-arrow">›</span>
+        </button>
+      </section>
+
+      <section class="settings-group glass-card">
+        <div class="group-head">
+          <div>
+            <div class="group-kicker">System Fit</div>
+            <h2>系统适配与常驻</h2>
+          </div>
+          <span class="group-meta">Core</span>
+        </div>
+
+        <div class="setting-row status-row battery-row" id="batteryRow">
+          <div class="setting-copy">
+            <div class="setting-icon warning">!</div>
+            <div>
+              <strong>电池优化引导</strong>
+              <small>若未加入电池优化白名单，Widget 刷新与常驻能力可能被系统回收。</small>
+            </div>
+          </div>
+          <button class="pill-action warn" id="batteryAction">去配置</button>
+        </div>
+
+        <button class="setting-row nav-row" id="hyperOsGuideButton">
+          <div class="setting-copy">
+            <div class="setting-icon">◎</div>
+            <div>
+              <strong>HyperOS 兼容提示</strong>
+              <small>查看如何避免系统清理后台、限制自启动与小组件刷新。</small>
+            </div>
+          </div>
+          <span class="nav-arrow">›</span>
+        </button>
+
+        <button class="setting-row nav-row" id="desktopGuideButton">
+          <div class="setting-copy">
+            <div class="setting-icon">▣</div>
+            <div>
+              <strong>桌面展示说明</strong>
+              <small>引导添加 Widget、说明刷新机制，并预告静态壁纸导出与动态壁纸后续路线。</small>
+            </div>
+          </div>
+          <span class="nav-arrow">›</span>
+        </button>
+      </section>
+
+      <section class="settings-group glass-card about-card">
+        <div class="group-head">
+          <div>
+            <div class="group-kicker">About</div>
+            <h2>关于</h2>
+          </div>
+          <span class="group-meta">MVP</span>
+        </div>
+
+        <div class="about-hero">
+          <div class="about-mark">M</div>
+          <div class="about-copy">
+            <strong>moqim_list</strong>
+            <small>按月、周、日、时段组织执行，并把重点计划持续展示在主界面的 Android 执行系统。</small>
+          </div>
+          <span class="info-chip">v1 MVP</span>
+        </div>
+
+        <div class="about-grid">
+          <div class="about-metric">
+            <span class="about-label">当前阶段</span>
+            <strong>Widget First</strong>
+          </div>
+          <div class="about-metric">
+            <span class="about-label">核心方向</span>
+            <strong>执行 + 展示</strong>
+          </div>
+        </div>
+
+        <div class="setting-row static-row">
+          <div class="setting-copy">
+            <div class="setting-icon">⌘</div>
+            <div>
+              <strong>当前重点能力</strong>
+              <small>晨间视图、当前时段 Widget、展示配置、HyperOS 兼容说明持续迭代中。</small>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <section class="bottom-sheet hidden" id="hyperOsSheet">
+    <div class="sheet-backdrop" id="sheetBackdrop"></div>
+    <div class="sheet-panel glass-panel">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <div>
+          <div class="group-kicker">HyperOS Guide</div>
+          <h3>防止小组件被系统杀后台</h3>
+        </div>
+        <button class="sheet-close" id="sheetCloseButton">✕</button>
+      </div>
+
+      <div class="sheet-hero">
+        <div class="sheet-hero-icon">🛡</div>
+        <p>把“自启动、无限制电量、后台锁定”三件事一次配置到位，展示层才能稳定常驻，并保证 Widget 刷新不轻易失效。</p>
+      </div>
+
+      <div class="sheet-steps">
+        <div class="sheet-step">
+          <span>1</span>
+          <div>
+            <strong>开启自启动</strong>
+            <small>进入应用信息或系统安全中心，允许 moqim_list 在开机后自动运行。</small>
+          </div>
+        </div>
+        <div class="sheet-step">
+          <span>2</span>
+          <div>
+            <strong>关闭电池限制</strong>
+            <small>把电量策略调为“不限制”或“无限制”，避免 Widget 刷新被冻结。</small>
+          </div>
+        </div>
+        <div class="sheet-step">
+          <span>3</span>
+          <div>
+            <strong>最近任务中锁定</strong>
+            <small>在最近任务卡片下拉或长按，锁定应用，减少系统误清理。</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bottom-sheet hidden" id="desktopGuideSheet">
+    <div class="sheet-backdrop" id="desktopSheetBackdrop"></div>
+    <div class="sheet-panel glass-panel">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <div>
+          <div class="group-kicker">Desktop Surface</div>
+          <h3>桌面展示说明</h3>
+        </div>
+        <button class="sheet-close" id="desktopSheetCloseButton">✕</button>
+      </div>
+
+      <div class="sheet-hero">
+        <div class="sheet-hero-icon">🧩</div>
+        <p>桌面展示是这个产品的 MVP 核心，不只是附属入口。当前优先推荐 Widget，静态壁纸导出和动态壁纸作为后续阶段扩展。</p>
+      </div>
+
+      <div class="sheet-steps">
+        <div class="sheet-step">
+          <span>1</span>
+          <div>
+            <strong>添加 Widget</strong>
+            <small>长按桌面进入编辑态，选择 moqim_list 小组件，优先使用晨间视图或当前时段视图。</small>
+          </div>
+        </div>
+        <div class="sheet-step">
+          <span>2</span>
+          <div>
+            <strong>理解刷新策略</strong>
+            <small>任务状态、打卡状态、App 启动与跨天都会触发刷新；若系统过度省电，刷新会受影响。</small>
+          </div>
+        </div>
+        <div class="sheet-step">
+          <span>3</span>
+          <div>
+            <strong>后续展示路线</strong>
+            <small>V1.5 预留静态壁纸导出，V2 再推进动态壁纸，默认只展示最重要的信息而不是整个数据库。</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="./script.js"></script>
+</body>
+</html>
