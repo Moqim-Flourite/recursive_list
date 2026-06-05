@@ -44,6 +44,7 @@ class GitHubUpdateChecker(private val context: Context) {
         val apkFileName: String,
         val apkSizeBytes: Long,
         val publishedAt: String,
+        val remoteVersionCode: Int = 0,
     )
 
     fun getCurrentVersion(): String {
@@ -52,6 +53,16 @@ class GitHubUpdateChecker(private val context: Context) {
             packageInfo.versionName ?: "unknown"
         } catch (e: PackageManager.NameNotFoundException) {
             "unknown"
+        }
+    }
+
+    fun getCurrentVersionCode(): Int {
+        return try {
+            val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            @Suppress("DEPRECATION")
+            packageInfo.versionCode
+        } catch (e: PackageManager.NameNotFoundException) {
+            0
         }
     }
 
@@ -114,6 +125,22 @@ class GitHubUpdateChecker(private val context: Context) {
                 return@withContext Result.failure(Exception("Release 中没有 APK 文件"))
             }
 
+            // 从 assets 中读取 version.json 获取 versionCode
+            var remoteVersionCode = 0
+            for (i in 0 until assets.length()) {
+                val asset = assets.getJSONObject(i)
+                if (asset.getString("name") == "version.json") {
+                    try {
+                        val metaUrl = asset.getString("browser_download_url")
+                        val metaBody = fetchUrl(metaUrl)
+                        remoteVersionCode = JSONObject(metaBody).optInt("versionCode", 0)
+                    } catch (e: Exception) {
+                        Log.w(TAG, "读取 version.json 失败，仅使用版本号比较: ${e.message}")
+                    }
+                    break
+                }
+            }
+
             val updateInfo = UpdateInfo(
                 version = tagName,
                 releaseName = releaseName,
@@ -122,11 +149,18 @@ class GitHubUpdateChecker(private val context: Context) {
                 apkFileName = apkName,
                 apkSizeBytes = apkSize,
                 publishedAt = publishedAt,
+                remoteVersionCode = remoteVersionCode,
             )
 
             val currentVersion = getCurrentVersion()
-            val hasUpdate = compareVersions(currentVersion, tagName) > 0
-            Log.i(TAG, "当前=$currentVersion, 最新=$tagName, 有更新=$hasUpdate")
+            val currentVersionCode = getCurrentVersionCode()
+            val versionNameComparison = compareVersions(currentVersion, tagName)
+            val hasUpdate = when {
+                versionNameComparison > 0 -> true
+                versionNameComparison < 0 -> false
+                else -> remoteVersionCode > 0 && currentVersionCode > 0 && remoteVersionCode > currentVersionCode
+            }
+            Log.i(TAG, "当前=$currentVersion(code=$currentVersionCode), 最新=$tagName(code=$remoteVersionCode), 有更新=$hasUpdate")
 
             if (hasUpdate) {
                 Result.success(updateInfo)
