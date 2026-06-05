@@ -2,9 +2,24 @@ package com.moqim.list.data.local.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "daily_plans")
+@Entity(
+    tableName = "daily_plans",
+    indices = [
+        Index(value = ["weekly_plan_id"]),
+    ],
+    foreignKeys = [
+        ForeignKey(
+            entity = WeeklyPlanEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["weekly_plan_id"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+)
 data class DailyPlanEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,

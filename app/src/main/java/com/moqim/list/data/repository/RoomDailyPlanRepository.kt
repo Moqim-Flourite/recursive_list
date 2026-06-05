@@ -2,10 +2,12 @@ package com.moqim.list.data.repository
 
 import com.moqim.list.data.local.dao.DailyPlanDao
 import com.moqim.list.data.local.dao.WeeklyPlanDao
+import com.moqim.list.data.local.database.AppDatabase
 import com.moqim.list.data.local.entity.DailyPlanEntity
 import com.moqim.list.domain.model.DailyPlanSummary
 import com.moqim.list.domain.repository.DailyPlanRepository
 import com.moqim.list.data.local.entity.WeeklyPlanEntity
+import androidx.room.withTransaction
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -17,6 +19,7 @@ class RoomDailyPlanRepository(
     private val dailyPlanDao: DailyPlanDao,
     private val weeklyPlanDao: WeeklyPlanDao,
     private val executionTaskDao: com.moqim.list.data.local.dao.ExecutionTaskDao,
+    private val db: AppDatabase? = null,
 ) : DailyPlanRepository {
 
     override suspend fun seedTodayIfNeeded() {
@@ -117,8 +120,15 @@ class RoomDailyPlanRepository(
     }
 
     override suspend fun deleteDailyPlanCascade(planId: Long) {
-        executionTaskDao.deleteByDailyPlanId(planId)
-        dailyPlanDao.deleteById(planId)
+        val execute: suspend () -> Unit = {
+            executionTaskDao.deleteByDailyPlanId(planId)
+            dailyPlanDao.deleteById(planId)
+        }
+        if (db != null) {
+            db.withTransaction { execute() }
+        } else {
+            execute()
+        }
     }
 
     override fun observeTodayPlan(date: String): Flow<DailyPlanSummary?> {

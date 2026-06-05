@@ -33,6 +33,9 @@ interface DailyPlanDao {
     @Query("DELETE FROM daily_plans WHERE weekly_plan_id = :weeklyPlanId")
     suspend fun deleteByWeeklyPlanId(weeklyPlanId: Long)
 
+    @Query("DELETE FROM daily_plans WHERE weekly_plan_id IN (:weeklyPlanIds)")
+    suspend fun deleteByWeeklyPlanIds(weeklyPlanIds: List<Long>)
+
     @Query("SELECT * FROM daily_plans ORDER BY date DESC, id DESC")
     suspend fun getAll(): List<DailyPlanEntity>
 

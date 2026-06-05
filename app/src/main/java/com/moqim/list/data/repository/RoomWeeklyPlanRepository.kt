@@ -4,10 +4,12 @@ import com.moqim.list.data.local.dao.DailyPlanDao
 import com.moqim.list.data.local.dao.ExecutionTaskDao
 import com.moqim.list.data.local.dao.MonthlyPlanDao
 import com.moqim.list.data.local.dao.WeeklyPlanDao
+import com.moqim.list.data.local.database.AppDatabase
 import com.moqim.list.data.local.entity.WeeklyPlanEntity
 import com.moqim.list.domain.model.WeeklyPlanSummary
 import com.moqim.list.domain.repository.WeeklyPlanRepository
 import com.moqim.list.feature.plans.model.WeeklyPlanItemUiModel
+import androidx.room.withTransaction
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -20,6 +22,7 @@ class RoomWeeklyPlanRepository(
     private val monthlyPlanDao: MonthlyPlanDao,
     private val dailyPlanDao: DailyPlanDao? = null,
     private val executionTaskDao: ExecutionTaskDao? = null,
+    private val db: AppDatabase? = null,
 ) : WeeklyPlanRepository {
 
     override suspend fun seedDefaultsIfNeeded() {
@@ -141,13 +144,16 @@ class RoomWeeklyPlanRepository(
     }
 
     override suspend fun deleteWeeklyPlanCascade(planId: Long) {
-        val days = dailyPlanDao?.getByWeeklyPlanId(planId).orEmpty()
-        days.forEach { day ->
-            executionTaskDao?.deleteByDailyPlanId(day.id)
-            dailyPlanDao?.deleteById(day.id)
+        val execute: suspend () -> Unit = {
+            executionTaskDao?.deleteByWeeklyPlanId(planId)
+            dailyPlanDao?.deleteByWeeklyPlanId(planId)
+            weeklyPlanDao.deleteById(planId)
         }
-        executionTaskDao?.deleteByWeeklyPlanId(planId)
-        weeklyPlanDao.deleteById(planId)
+        if (db != null) {
+            db.withTransaction { execute() }
+        } else {
+            execute()
+        }
     }
 
     override fun observeWeeklyPlans(): Flow<List<WeeklyPlanSummary>> {

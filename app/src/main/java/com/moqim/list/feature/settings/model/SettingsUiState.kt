@@ -31,5 +31,6 @@ data class UpdateDialogInfo(
     val releaseNotes: String,
     val publishedAt: String,
     val apkDownloadUrl: String?,
+    val apkFileName: String?,
     val apkSizeBytes: Long,
 )

@@ -60,6 +60,9 @@ interface ExecutionTaskDao {
     @Query("SELECT * FROM execution_tasks WHERE daily_plan_id = :dailyPlanId ORDER BY is_top_focus DESC, sort_order ASC, id ASC")
     suspend fun getByDailyPlanId(dailyPlanId: Long): List<ExecutionTaskEntity>
 
+    @Query("SELECT * FROM execution_tasks WHERE daily_plan_id IN (:dailyPlanIds) ORDER BY is_top_focus DESC, sort_order ASC, id ASC")
+    suspend fun getByDailyPlanIds(dailyPlanIds: List<Long>): List<ExecutionTaskEntity>
+
     @Query("SELECT * FROM execution_tasks WHERE weekly_plan_id = :weeklyPlanId ORDER BY updated_at DESC, id DESC")
     suspend fun getByWeeklyPlanId(weeklyPlanId: Long): List<ExecutionTaskEntity>
 

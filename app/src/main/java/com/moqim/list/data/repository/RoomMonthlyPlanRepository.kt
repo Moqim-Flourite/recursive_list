@@ -4,10 +4,12 @@ import com.moqim.list.data.local.dao.DailyPlanDao
 import com.moqim.list.data.local.dao.ExecutionTaskDao
 import com.moqim.list.data.local.dao.MonthlyPlanDao
 import com.moqim.list.data.local.dao.WeeklyPlanDao
+import com.moqim.list.data.local.database.AppDatabase
 import com.moqim.list.data.local.entity.MonthlyPlanEntity
 import com.moqim.list.domain.model.MonthlyPlanSummary
 import com.moqim.list.domain.repository.MonthlyPlanRepository
 import com.moqim.list.feature.plans.model.MonthlyPlanItemUiModel
+import androidx.room.withTransaction
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
@@ -18,6 +20,7 @@ class RoomMonthlyPlanRepository(
     private val weeklyPlanDao: WeeklyPlanDao? = null,
     private val dailyPlanDao: DailyPlanDao? = null,
     private val executionTaskDao: ExecutionTaskDao? = null,
+    private val db: AppDatabase? = null,
 ) : MonthlyPlanRepository {
 
     override suspend fun seedDefaultsIfNeeded() {
@@ -134,18 +137,20 @@ class RoomMonthlyPlanRepository(
             monthlyPlanDao.deleteById(planId)
             return
         }
-        val weeks = weeklyDao.getByMonthlyPlanId(planId)
-        weeks.forEach { week ->
-            val days = dailyPlanDao?.getByWeeklyPlanId(week.id).orEmpty()
-            days.forEach { day ->
-                executionTaskDao?.deleteByDailyPlanId(day.id)
-                dailyPlanDao?.deleteById(day.id)
+        val execute: suspend () -> Unit = {
+            val weekIds = weeklyDao.getByMonthlyPlanId(planId).map { it.id }
+            if (weekIds.isNotEmpty()) {
+                dailyPlanDao?.deleteByWeeklyPlanIds(weekIds)
             }
-            executionTaskDao?.deleteByWeeklyPlanId(week.id)
-            weeklyDao.deleteById(week.id)
+            executionTaskDao?.deleteByMonthlyPlanId(planId)
+            weeklyDao.deleteByMonthlyPlanId(planId)
+            monthlyPlanDao.deleteById(planId)
         }
-        executionTaskDao?.deleteByMonthlyPlanId(planId)
-        monthlyPlanDao.deleteById(planId)
+        if (db != null) {
+            db.withTransaction { execute() }
+        } else {
+            execute()
+        }
     }
 
     override fun observeMonthlyPlans(): Flow<List<MonthlyPlanSummary>> {

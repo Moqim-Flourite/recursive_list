@@ -43,4 +43,7 @@ interface WeeklyPlanDao {
 
     @Query("DELETE FROM weekly_plans WHERE id = :planId")
     suspend fun deleteById(planId: Long)
+
+    @Query("DELETE FROM weekly_plans WHERE monthly_plan_id = :monthlyPlanId")
+    suspend fun deleteByMonthlyPlanId(monthlyPlanId: Long)
 }

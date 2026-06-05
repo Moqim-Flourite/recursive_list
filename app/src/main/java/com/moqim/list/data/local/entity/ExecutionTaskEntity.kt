@@ -2,6 +2,7 @@ package com.moqim.list.data.local.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
@@ -13,6 +14,26 @@ import androidx.room.PrimaryKey
         Index(value = ["monthly_plan_id"]),
         Index(value = ["status"]),
         Index(value = ["time_segment"]),
+    ],
+    foreignKeys = [
+        ForeignKey(
+            entity = MonthlyPlanEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["monthly_plan_id"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+        ForeignKey(
+            entity = WeeklyPlanEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["weekly_plan_id"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+        ForeignKey(
+            entity = DailyPlanEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["daily_plan_id"],
+            onDelete = ForeignKey.CASCADE,
+        ),
     ],
 )
 data class ExecutionTaskEntity(

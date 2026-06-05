@@ -144,49 +144,44 @@ class SettingsViewModel(
         }
     }
 
+    private val updateChecker by lazy { com.moqim.list.data.update.GitHubUpdateChecker(appContext) }
+
     fun onCheckForUpdate() {
         if (_uiState.value.isCheckingUpdate) return
         _uiState.value = _uiState.value.copy(isCheckingUpdate = true, updateStatus = "检查中...")
         viewModelScope.launch {
-            val currentVersionCode = try {
-                appContext.packageManager
-                    .getPackageInfo(appContext.packageName, 0)
-                    .longVersionCode.toInt()
-            } catch (_: Exception) { 1 }
+            val result = updateChecker.checkForUpdate()
 
-            // 网络操作放到 IO
-            val result = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                com.moqim.list.data.update.GitHubUpdateChecker.checkForUpdate(currentVersionCode)
-            }
-
-            when (result) {
-                is com.moqim.list.data.update.UpdateResult.Available -> {
+            result.fold(
+                onSuccess = { info ->
+                    if (info != null) {
+                        _uiState.value = _uiState.value.copy(
+                            isCheckingUpdate = false,
+                            updateStatus = "发现新版本 ${info.version}",
+                            updateDialogInfo = com.moqim.list.feature.settings.model.UpdateDialogInfo(
+                                versionName = info.version,
+                                releaseName = info.releaseName,
+                                releaseNotes = info.releaseBody,
+                                publishedAt = info.publishedAt,
+                                apkDownloadUrl = info.apkDownloadUrl,
+                                apkFileName = info.apkFileName,
+                                apkSizeBytes = info.apkSizeBytes,
+                            ),
+                        )
+                    } else {
+                        _uiState.value = _uiState.value.copy(
+                            isCheckingUpdate = false,
+                            updateStatus = "已是最新版本 ✓",
+                        )
+                    }
+                },
+                onFailure = { e ->
                     _uiState.value = _uiState.value.copy(
                         isCheckingUpdate = false,
-                        updateStatus = "发现新版本 ${result.versionName}",
-                        updateDialogInfo = com.moqim.list.feature.settings.model.UpdateDialogInfo(
-                            versionName = result.versionName,
-                            releaseName = result.releaseName,
-                            releaseNotes = result.releaseNotes,
-                            publishedAt = result.publishedAt,
-                            apkDownloadUrl = result.apkDownloadUrl,
-                            apkSizeBytes = result.apkSizeBytes,
-                        ),
+                        updateStatus = "检查失败: ${e.message}",
                     )
-                }
-                is com.moqim.list.data.update.UpdateResult.UpToDate -> {
-                    _uiState.value = _uiState.value.copy(
-                        isCheckingUpdate = false,
-                        updateStatus = "已是最新版本 ✓",
-                    )
-                }
-                is com.moqim.list.data.update.UpdateResult.Error -> {
-                    _uiState.value = _uiState.value.copy(
-                        isCheckingUpdate = false,
-                        updateStatus = "检查失败: ${result.message}",
-                    )
-                }
-            }
+                },
+            )
         }
     }
 
@@ -195,20 +190,32 @@ class SettingsViewModel(
     }
 
     fun onInstallUpdate() {
-        val info = _uiState.value.updateDialogInfo ?: return
-        val apkUrl = info.apkDownloadUrl ?: return
+        val dialogInfo = _uiState.value.updateDialogInfo ?: return
+        val apkUrl = dialogInfo.apkDownloadUrl ?: return
+
+        // 构造 UpdateInfo 传给下载器，文件名用 API 返回的 asset name
+        val updateInfo = com.moqim.list.data.update.GitHubUpdateChecker.UpdateInfo(
+            version = dialogInfo.versionName,
+            releaseName = dialogInfo.releaseName,
+            releaseBody = dialogInfo.releaseNotes,
+            apkDownloadUrl = apkUrl,
+            apkFileName = dialogInfo.apkFileName ?: apkUrl.substringAfterLast('/').substringBefore('?'),
+            apkSizeBytes = dialogInfo.apkSizeBytes,
+            publishedAt = dialogInfo.publishedAt,
+        )
+
         _uiState.value = _uiState.value.copy(updateStatus = "下载中...")
-        com.moqim.list.data.update.ApkDownloader.download(
-            context = appContext,
-            apkUrl = apkUrl,
-            onProgress = { read, total ->
-                val pct = if (total > 0) (read * 100 / total) else -1
-                _uiState.value = _uiState.value.copy(
-                    updateStatus = if (pct >= 0) "下载中 $pct%" else "下载中..."
-                )
-            },
-            onComplete = { file ->
-                if (file != null) {
+        viewModelScope.launch {
+            val result = com.moqim.list.data.update.ApkDownloader.download(
+                context = appContext,
+                updateInfo = updateInfo,
+                onProgress = { pct ->
+                    _uiState.value = _uiState.value.copy(updateStatus = "下载中 $pct%")
+                },
+            )
+
+            result.fold(
+                onSuccess = { file ->
                     _uiState.value = _uiState.value.copy(
                         updateStatus = "下载完成，准备安装...",
                         updateDialogInfo = null,
@@ -228,11 +235,12 @@ class SettingsViewModel(
                     }
                     runCatching { appContext.startActivity(intent) }
                     _uiState.value = _uiState.value.copy(updateStatus = "检查更新")
-                } else {
-                    _uiState.value = _uiState.value.copy(updateStatus = "下载失败，请重试")
-                }
-            },
-        )
+                },
+                onFailure = { e ->
+                    _uiState.value = _uiState.value.copy(updateStatus = "下载失败: ${e.message}")
+                },
+            )
+        }
     }
 
     fun openBatteryOptimizationSettings() {

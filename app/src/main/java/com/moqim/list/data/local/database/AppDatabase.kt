@@ -30,8 +30,8 @@ import com.moqim.list.data.local.entity.WidgetInstanceConfigEntity
         SurfaceConfigEntity::class,
         WidgetInstanceConfigEntity::class,
     ],
-    version = 5,
-    exportSchema = false,
+    version = 7,
+    exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun monthlyPlanDao(): MonthlyPlanDao

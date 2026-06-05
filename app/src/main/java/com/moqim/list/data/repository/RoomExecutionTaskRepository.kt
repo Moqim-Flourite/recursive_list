@@ -8,6 +8,7 @@ import com.moqim.list.domain.model.ExecutionTaskSummary
 import com.moqim.list.domain.repository.ExecutionTaskRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -19,10 +20,19 @@ class RoomExecutionTaskRepository(
     private val executionTaskDao: ExecutionTaskDao,
 ) : ExecutionTaskRepository {
 
+    companion object {
+        /** 已经 seed 过的日期，防止用户删光任务后被重新生成 */
+        private val seededTodayDates = mutableSetOf<String>()
+    }
+
     override suspend fun seedForTodayIfNeeded() {
         val today = LocalDate.now().toString()
+        if (today in seededTodayDates) return
         val dailyPlan = dailyPlanDao.observeByDate(today).first() ?: return
-        if (executionTaskDao.countByDailyPlanId(dailyPlan.id) > 0) return
+        if (executionTaskDao.countByDailyPlanId(dailyPlan.id) > 0) {
+            seededTodayDates.add(today)
+            return
+        }
 
         val now = System.currentTimeMillis()
         val yesterday = LocalDate.now().minusDays(1).toString()
@@ -143,6 +153,7 @@ class RoomExecutionTaskRepository(
         }
 
         generated.forEach { executionTaskDao.upsert(it) }
+        seededTodayDates.add(today)
     }
 
     override suspend fun addQuickTask() {
@@ -493,17 +504,20 @@ class RoomExecutionTaskRepository(
             if (targetPlans.isEmpty()) {
                 flowOf(emptyList())
             } else {
-                executionTaskDao.observeByDailyPlanId(targetPlans.first().id).map { firstTasks ->
-                    val allTasks = buildList {
-                        addAll(firstTasks)
-                        targetPlans.drop(1).forEach { plan ->
-                            addAll(executionTaskDao.getByDailyPlanId(plan.id))
-                        }
+                val planIds = targetPlans.map { it.id }
+                if (planIds.size == 1) {
+                    executionTaskDao.observeByDailyPlanId(planIds.first()).map { tasks ->
+                        tasks.sortedWith(compareByDescending<ExecutionTaskEntity> { it.isTopFocus }.thenBy { it.sortOrder }.thenBy { it.id })
+                            .map(::toSummary)
                     }
-                    allTasks
-                        .distinctBy { it.id }
-                        .sortedWith(compareByDescending<ExecutionTaskEntity> { it.isTopFocus }.thenBy { it.sortOrder }.thenBy { it.id })
-                        .map(::toSummary)
+                } else {
+                    val flows = planIds.map { id -> executionTaskDao.observeByDailyPlanId(id) }
+                    combine(flows) { arrays ->
+                        arrays.flatMap { it.toList() }
+                            .distinctBy { it.id }
+                            .sortedWith(compareByDescending<ExecutionTaskEntity> { it.isTopFocus }.thenBy { it.sortOrder }.thenBy { it.id })
+                            .map(::toSummary)
+                    }
                 }
             }
         }
