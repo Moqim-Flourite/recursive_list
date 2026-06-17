@@ -201,7 +201,7 @@ private fun SettingsContent(
             }
 
             item {
-                HomeSectionCard(title = "个性化与外观", eyebrow = "Appearance") {
+                HomeSectionCard(title = "个性化与外观", eyebrow = "Appearance", collapsible = true) {
                     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                         ThemePaletteRow(
                             selected = uiState.appThemeLabel,
@@ -242,7 +242,7 @@ private fun SettingsContent(
             }
 
             item {
-                HomeSectionCard(title = "偏好与启动", eyebrow = "Preference") {
+                HomeSectionCard(title = "偏好与启动", eyebrow = "Preference", collapsible = true) {
                     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                         PreferenceBlock(
                             title = "默认首页",
@@ -294,7 +294,7 @@ private fun SettingsContent(
             }
 
             item {
-                HomeSectionCard(title = "WiFi 同步", eyebrow = "Sync") {
+                HomeSectionCard(title = "WiFi 同步", eyebrow = "Sync", collapsible = true) {
                     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                         SettingSwitchTile(
                             title = "启用同步",
@@ -345,7 +345,7 @@ private fun SettingsContent(
             }
 
             item {
-                HomeSectionCard(title = "展示与壁纸", eyebrow = "Display") {
+                HomeSectionCard(title = "展示与壁纸", eyebrow = "Display", collapsible = true, initiallyExpanded = false) {
                     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                         PreferenceBlock(
                             title = "动态壁纸数据源",
@@ -421,7 +421,7 @@ private fun SettingsContent(
             }
 
             item {
-                HomeSectionCard(title = "数据与同步", eyebrow = "Data") {
+                HomeSectionCard(title = "数据与同步", eyebrow = "Data", collapsible = true, initiallyExpanded = false) {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         ActionInfoTile(
                             title = "本地数据备份",
@@ -452,7 +452,7 @@ private fun SettingsContent(
             }
 
             item {
-                HomeSectionCard(title = "系统适配与常驻", eyebrow = "System Fit") {
+                HomeSectionCard(title = "系统适配与常驻", eyebrow = "System Fit", collapsible = true, initiallyExpanded = false) {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         ActionInfoTile(
                             title = "电池优化引导",
@@ -475,7 +475,7 @@ private fun SettingsContent(
             }
 
             item {
-                HomeSectionCard(title = "关于", eyebrow = "About") {
+                HomeSectionCard(title = "关于", eyebrow = "About", collapsible = true, initiallyExpanded = false) {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         AboutHeroCard(
                             title = "Recursive List",
