@@ -243,6 +243,8 @@ private fun SurfaceContent(
                 HomeSectionCard(
                     title = "当前能力概览",
                     eyebrow = "Current Scope",
+                    collapsible = true,
+                    initiallyExpanded = false,
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text(
@@ -265,6 +267,8 @@ private fun SurfaceContent(
                 HomeSectionCard(
                     title = "实时预览窗口",
                     eyebrow = "Previewer",
+                    collapsible = true,
+                    initiallyExpanded = false,
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                         PreviewModeRow(
@@ -284,6 +288,8 @@ private fun SurfaceContent(
                     title = "",
                     eyebrow = "控制区 · Source & Style",
                     compactHeader = true,
+                    collapsible = true,
+                    initiallyExpanded = false,
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Row(
@@ -413,6 +419,8 @@ private fun SurfaceContent(
                 HomeSectionCard(
                     title = "刷新与同步策略",
                     eyebrow = "Refresh & Sync",
+                    collapsible = true,
+                    initiallyExpanded = false,
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                         SettingSwitchRow(
@@ -447,6 +455,8 @@ private fun SurfaceContent(
                 HomeSectionCard(
                     title = "壁纸主线入口",
                     eyebrow = "Wallpaper Roadmap",
+                    collapsible = true,
+                    initiallyExpanded = false,
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         InfoRow(
@@ -531,6 +541,8 @@ private fun SurfaceContent(
                     HomeSectionCard(
                         title = "HyperOS 添加小组件",
                         eyebrow = "Widget Guide",
+                        collapsible = true,
+                        initiallyExpanded = false,
                     ) {
                         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                             GuideStep(1, "桌面双指内捏，进入桌面编辑态。")
