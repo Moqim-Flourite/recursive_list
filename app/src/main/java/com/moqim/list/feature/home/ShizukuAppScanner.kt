@@ -24,7 +24,12 @@ object ShizukuAppScanner {
     }
 
     fun hasPermission(): Boolean {
-        return Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
+        if (!isShizukuAvailable()) return false
+        return try {
+            Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED
+        } catch (_: Exception) {
+            false
+        }
     }
 
     fun loadThirdPartyApps(context: Context): List<ShizukuInstalledApp> {
