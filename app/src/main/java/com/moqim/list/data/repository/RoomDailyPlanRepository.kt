@@ -23,6 +23,10 @@ class RoomDailyPlanRepository(
 ) : DailyPlanRepository {
 
     override suspend fun seedTodayIfNeeded() {
+        // seed 逻辑已移除
+        return
+
+        @Suppress("UNREACHABLE_CODE")
         val today = LocalDate.now()
         val todayKey = today.toString()
         if (dailyPlanDao.countByDate(todayKey) > 0) return

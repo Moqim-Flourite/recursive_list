@@ -923,14 +923,7 @@ class PlansViewModel(
     }
 
     private suspend fun seedPlanningCenterTemporaryListsIfNeeded() {
-        val inbox = executionTaskRepository.observeTemporaryTasksBySource("INBOX").first()
-        val weekPool = executionTaskRepository.observeTemporaryTasksBySource("WEEK_POOL").first()
-        if (inbox.isNotEmpty() || weekPool.isNotEmpty()) return
-
-        executionTaskRepository.addInboxTask("收集零散灵感", "先收进 Inbox，稍后决定归属。")
-        executionTaskRepository.addTemporaryTask("把周目标拆成 3 个动作", "适合拖入某个日时段。", "WEEK_POOL")
-        executionTaskRepository.addTemporaryTask("整理碎片待办", "放在 Quick Wins。", "QUICK_WINS")
-        executionTaskRepository.addTemporaryTask("补完计划页视觉层次", "适合深度工作时段。", "DEEP_WORK")
+        // seed 逻辑已移除
     }
 
     private fun buildSegmentUi(tasks: List<PlanningTaskUiModel>): List<PlanningSegmentUiModel> {

@@ -24,12 +24,7 @@ class RoomMonthlyPlanRepository(
 ) : MonthlyPlanRepository {
 
     override suspend fun seedDefaultsIfNeeded() {
-        if (monthlyPlanDao.countAll() > 0) return
-        insertMonthlyPlan(
-            title = "Recursive List MVP 开发",
-            theme = "产品搭建",
-            goal = "完成首页、打卡闭环和月计划主线骨架",
-        )
+        // seed 逻辑已移除
     }
 
     override suspend fun addQuickMonthlyPlan() {

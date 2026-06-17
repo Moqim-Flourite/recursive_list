@@ -26,6 +26,10 @@ class RoomExecutionTaskRepository(
     }
 
     override suspend fun seedForTodayIfNeeded() {
+        // seed 逻辑已移除
+        return
+
+        @Suppress("UNREACHABLE_CODE")
         val today = LocalDate.now().toString()
         if (today in seededTodayDates) return
         val dailyPlan = dailyPlanDao.observeByDate(today).first() ?: return

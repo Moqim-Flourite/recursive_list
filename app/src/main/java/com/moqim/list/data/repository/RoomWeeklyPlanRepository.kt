@@ -26,16 +26,7 @@ class RoomWeeklyPlanRepository(
 ) : WeeklyPlanRepository {
 
     override suspend fun seedDefaultsIfNeeded() {
-        if (weeklyPlanDao.countAll() > 0) return
-
-        val monthlyPlans = monthlyPlanDao.observeAll().first()
-        val firstMonthlyPlan = monthlyPlans.firstOrNull() ?: return
-
-        insertWeeklyPlan(
-            monthlyPlanId = firstMonthlyPlan.id,
-            title = "第一周推进",
-            goal = "完成首页、打卡闭环与计划页联动。",
-        )
+        // seed 逻辑已移除
     }
 
     override suspend fun addQuickWeeklyPlan() {
