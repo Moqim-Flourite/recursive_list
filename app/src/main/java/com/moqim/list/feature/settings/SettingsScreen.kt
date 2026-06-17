@@ -201,7 +201,7 @@ private fun SettingsContent(
             }
 
             item {
-                HomeSectionCard(title = "个性化与外观", eyebrow = "Appearance", collapsible = true) {
+                HomeSectionCard(title = "个性化与外观", eyebrow = "Appearance", collapsible = true, initiallyExpanded = false) {
                     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                         ThemePaletteRow(
                             selected = uiState.appThemeLabel,
@@ -242,7 +242,7 @@ private fun SettingsContent(
             }
 
             item {
-                HomeSectionCard(title = "偏好与启动", eyebrow = "Preference", collapsible = true) {
+                HomeSectionCard(title = "偏好与启动", eyebrow = "Preference", collapsible = true, initiallyExpanded = false) {
                     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                         PreferenceBlock(
                             title = "默认首页",
@@ -294,7 +294,7 @@ private fun SettingsContent(
             }
 
             item {
-                HomeSectionCard(title = "WiFi 同步", eyebrow = "Sync", collapsible = true) {
+                HomeSectionCard(title = "WiFi 同步", eyebrow = "Sync", collapsible = true, initiallyExpanded = false) {
                     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
                         SettingSwitchTile(
                             title = "启用同步",
