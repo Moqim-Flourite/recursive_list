@@ -23,6 +23,8 @@ class SettingsViewModel(
     private val backupService: BackupService,
 ) : ViewModel() {
 
+    private val syncRepository = com.moqim.list.data.sync.SyncRepository(appContext)
+
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
@@ -46,6 +48,18 @@ class SettingsViewModel(
                     eveningTime = preferences.eveningTime,
                 )
             }
+        }
+        // 初始化同步状态
+        viewModelScope.launch {
+            val cfg = syncRepository.config
+            _uiState.value = _uiState.value.copy(
+                syncEnabled = cfg.enabled,
+                syncPaired = cfg.isPaired,
+                syncServerHost = cfg.serverHost,
+                syncServerPort = cfg.serverPort,
+                syncAuthToken = cfg.authToken,
+                syncStatus = syncRepository.getSyncStatusSummary(),
+            )
         }
     }
 
@@ -128,6 +142,104 @@ class SettingsViewModel(
         _uiState.value = _uiState.value.copy(liveWallpaperSetStatusMessage = null)
     }
 
+    // ===== WiFi 同步相关 =====
+
+    fun onSyncEnabledChange(enabled: Boolean) {
+        syncRepository.config.enabled = enabled
+        _uiState.value = _uiState.value.copy(syncEnabled = enabled)
+        if (enabled) {
+            com.moqim.list.data.sync.SyncWorker.schedulePeriodicSync(appContext)
+        } else {
+            com.moqim.list.data.sync.SyncWorker.cancelPeriodicSync(appContext)
+        }
+        refreshSyncStatus()
+    }
+
+    fun onSyncPair(host: String, port: Int, token: String) {
+        syncRepository.pair(token, host, port)
+        _uiState.value = _uiState.value.copy(
+            syncEnabled = true,
+            syncPaired = true,
+            syncServerHost = host,
+            syncServerPort = port,
+            syncAuthToken = token,
+        )
+        com.moqim.list.data.sync.SyncWorker.schedulePeriodicSync(appContext)
+        refreshSyncStatus()
+    }
+
+    fun onSyncUnpair() {
+        syncRepository.unpair()
+        com.moqim.list.data.sync.SyncWorker.cancelPeriodicSync(appContext)
+        _uiState.value = _uiState.value.copy(
+            syncEnabled = false,
+            syncPaired = false,
+            syncServerHost = "",
+            syncServerPort = 8080,
+            syncAuthToken = "",
+            syncStatus = "同步未启用",
+        )
+    }
+
+    fun onTriggerManualSync() {
+        if (_uiState.value.isSyncing) return
+        _uiState.value = _uiState.value.copy(isSyncing = true, syncResultMessage = null)
+        viewModelScope.launch {
+            val result = syncRepository.syncAll { progress ->
+                _uiState.value = _uiState.value.copy(syncStatus = progress)
+            }
+            when (result) {
+                is com.moqim.list.data.sync.SyncRepository.SyncResult.Success -> {
+                    _uiState.value = _uiState.value.copy(
+                        isSyncing = false,
+                        syncResultMessage = "同步完成: ${result.summary}",
+                    )
+                }
+                is com.moqim.list.data.sync.SyncRepository.SyncResult.Error -> {
+                    _uiState.value = _uiState.value.copy(
+                        isSyncing = false,
+                        syncResultMessage = "同步失败: ${result.message}",
+                    )
+                }
+                else -> {
+                    _uiState.value = _uiState.value.copy(isSyncing = false)
+                }
+            }
+            refreshSyncStatus()
+        }
+    }
+
+    fun onSyncResultMessageShown() {
+        _uiState.value = _uiState.value.copy(syncResultMessage = null)
+    }
+
+    fun onAutoDiscoverServer() {
+        _uiState.value = _uiState.value.copy(syncStatus = "正在搜索...")
+        viewModelScope.launch {
+            val server = syncRepository.discoverServer()
+            if (server != null) {
+                val (host, port) = server
+                _uiState.value = _uiState.value.copy(
+                    syncServerHost = host,
+                    syncServerPort = port,
+                    syncStatus = "找到服务器: $host:$port",
+                )
+            } else {
+                _uiState.value = _uiState.value.copy(
+                    syncStatus = "未找到服务器，请手动输入",
+                )
+            }
+        }
+    }
+
+    private fun refreshSyncStatus() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                syncStatus = syncRepository.getSyncStatusSummary(),
+            )
+        }
+    }
+
     fun onSetLiveWallpaperByShizuku() {
         viewModelScope.launch {
             val result = ShizukuWallpaperSetter.trySetLiveWallpaper()
@@ -150,38 +262,36 @@ class SettingsViewModel(
         if (_uiState.value.isCheckingUpdate) return
         _uiState.value = _uiState.value.copy(isCheckingUpdate = true, updateStatus = "检查中...")
         viewModelScope.launch {
-            val result = updateChecker.checkForUpdate()
-
-            result.fold(
-                onSuccess = { info ->
-                    if (info != null) {
-                        _uiState.value = _uiState.value.copy(
-                            isCheckingUpdate = false,
-                            updateStatus = "发现新版本 ${info.version}",
-                            updateDialogInfo = com.moqim.list.feature.settings.model.UpdateDialogInfo(
-                                versionName = info.version,
-                                releaseName = info.releaseName,
-                                releaseNotes = info.releaseBody,
-                                publishedAt = info.publishedAt,
-                                apkDownloadUrl = info.apkDownloadUrl,
-                                apkFileName = info.apkFileName,
-                                apkSizeBytes = info.apkSizeBytes,
-                            ),
-                        )
-                    } else {
-                        _uiState.value = _uiState.value.copy(
-                            isCheckingUpdate = false,
-                            updateStatus = "已是最新版本 ✓",
-                        )
-                    }
-                },
-                onFailure = { e ->
+            when (val result = updateChecker.checkForResult()) {
+                is com.moqim.list.data.update.GitHubUpdateChecker.CheckResult.HasUpdate -> {
+                    val info = result.info
                     _uiState.value = _uiState.value.copy(
                         isCheckingUpdate = false,
-                        updateStatus = "检查失败: ${e.message}",
+                        updateStatus = "发现新版本 ${info.version}",
+                        updateDialogInfo = com.moqim.list.feature.settings.model.UpdateDialogInfo(
+                            versionName = info.version,
+                            releaseName = info.releaseName,
+                            releaseNotes = info.releaseBody,
+                            publishedAt = info.publishedAt,
+                            apkDownloadUrl = info.apkDownloadUrl,
+                            apkFileName = info.apkFileName,
+                            apkSizeBytes = info.apkSizeBytes,
+                        ),
                     )
-                },
-            )
+                }
+                is com.moqim.list.data.update.GitHubUpdateChecker.CheckResult.UpToDate -> {
+                    _uiState.value = _uiState.value.copy(
+                        isCheckingUpdate = false,
+                        updateStatus = "已是最新版本 ✓",
+                    )
+                }
+                is com.moqim.list.data.update.GitHubUpdateChecker.CheckResult.Error -> {
+                    _uiState.value = _uiState.value.copy(
+                        isCheckingUpdate = false,
+                        updateStatus = "❌ ${result.message}",
+                    )
+                }
+            }
         }
     }
 

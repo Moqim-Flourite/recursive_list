@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.shizuku.api)
     implementation(libs.shizuku.provider)
+    implementation(libs.okhttp)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

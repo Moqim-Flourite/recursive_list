@@ -90,6 +90,13 @@ fun SettingsScreen() {
         }
     }
 
+    LaunchedEffect(uiState.syncResultMessage) {
+        uiState.syncResultMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.onSyncResultMessageShown()
+        }
+    }
+
     SettingsContent(
         uiState = uiState,
         snackbarHostState = snackbarHostState,
@@ -109,6 +116,12 @@ fun SettingsScreen() {
         onCheckForUpdate = viewModel::onCheckForUpdate,
         onInstallUpdate = viewModel::onInstallUpdate,
         onDismissUpdateDialog = viewModel::onDismissUpdateDialog,
+        onSyncEnabledChange = viewModel::onSyncEnabledChange,
+        onSyncPair = viewModel::onSyncPair,
+        onSyncUnpair = viewModel::onSyncUnpair,
+        onTriggerManualSync = viewModel::onTriggerManualSync,
+        onSyncResultMessageShown = viewModel::onSyncResultMessageShown,
+        onAutoDiscoverServer = viewModel::onAutoDiscoverServer,
     )
 }
 
@@ -133,6 +146,12 @@ private fun SettingsContent(
     onCheckForUpdate: () -> Unit,
     onInstallUpdate: () -> Unit,
     onDismissUpdateDialog: () -> Unit,
+    onSyncEnabledChange: (Boolean) -> Unit,
+    onSyncPair: (String, Int, String) -> Unit,
+    onSyncUnpair: () -> Unit,
+    onTriggerManualSync: () -> Unit,
+    onSyncResultMessageShown: () -> Unit,
+    onAutoDiscoverServer: () -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -269,6 +288,57 @@ private fun SettingsContent(
                                 eveningTime = uiState.eveningTime,
                                 onSave = onSegmentBoundaryTimesChange,
                             )
+                        }
+                    }
+                }
+            }
+
+            item {
+                HomeSectionCard(title = "WiFi 同步", eyebrow = "Sync") {
+                    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                        SettingSwitchTile(
+                            title = "启用同步",
+                            summary = "通过局域网将计划数据同步到电脑端，每天自动同步一次。",
+                            checked = uiState.syncEnabled,
+                            onCheckedChange = onSyncEnabledChange,
+                        )
+
+                        if (uiState.syncEnabled) {
+                            if (!uiState.syncPaired) {
+                                // 配对表单
+                                SyncPairForm(
+                                    host = uiState.syncServerHost,
+                                    port = uiState.syncServerPort,
+                                    token = uiState.syncAuthToken,
+                                    onPair = onSyncPair,
+                                    onAutoDiscover = onAutoDiscoverServer,
+                                )
+                            } else {
+                                // 已配对状态
+                                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    SettingValueTile(
+                                        title = "服务器",
+                                        value = "${uiState.syncServerHost}:${uiState.syncServerPort}",
+                                    )
+                                    SettingValueTile(
+                                        title = "状态",
+                                        value = uiState.syncStatus,
+                                    )
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    ) {
+                                        TextButton(
+                                            onClick = onTriggerManualSync,
+                                            enabled = !uiState.isSyncing,
+                                        ) {
+                                            Text(if (uiState.isSyncing) "同步中..." else "立即同步")
+                                        }
+                                        TextButton(onClick = onSyncUnpair) {
+                                            Text("解除配对")
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -992,5 +1062,59 @@ private fun SettingValueTile(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+    }
+}
+
+@Composable
+private fun SyncPairForm(
+    host: String,
+    port: Int,
+    token: String,
+    onPair: (String, Int, String) -> Unit,
+    onAutoDiscover: () -> Unit,
+) {
+    var hostInput by remember { mutableStateOf(host) }
+    var portInput by remember { mutableStateOf(if (port > 0) port.toString() else "8080") }
+    var tokenInput by remember { mutableStateOf(token) }
+
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        OutlinedTextField(
+            value = hostInput,
+            onValueChange = { hostInput = it },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("服务器 IP") },
+            singleLine = true,
+            supportingText = { Text("电脑端局域网 IP 地址") },
+        )
+        OutlinedTextField(
+            value = portInput,
+            onValueChange = { portInput = it.filter { c -> c.isDigit() }.take(5) },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("端口") },
+            singleLine = true,
+            supportingText = { Text("默认 8080") },
+        )
+        OutlinedTextField(
+            value = tokenInput,
+            onValueChange = { tokenInput = it },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("配对 Token") },
+            singleLine = true,
+            supportingText = { Text("电脑端启动时显示的 Token") },
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TextButton(onClick = onAutoDiscover) {
+                Text("自动搜索")
+            }
+            TextButton(
+                onClick = {
+                    val p = portInput.toIntOrNull() ?: 8080
+                    onPair(hostInput, p, tokenInput)
+                },
+                enabled = hostInput.isNotBlank() && tokenInput.isNotBlank(),
+            ) {
+                Text("配对")
+            }
+        }
     }
 }

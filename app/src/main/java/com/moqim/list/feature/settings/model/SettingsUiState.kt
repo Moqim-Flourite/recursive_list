@@ -23,6 +23,15 @@ data class SettingsUiState(
     val updateStatus: String = "检查更新",
     val isCheckingUpdate: Boolean = false,
     val updateDialogInfo: UpdateDialogInfo? = null,
+    // WiFi 同步状态
+    val syncEnabled: Boolean = false,
+    val syncPaired: Boolean = false,
+    val syncStatus: String = "同步未启用",
+    val syncServerHost: String = "",
+    val syncServerPort: Int = 8080,
+    val syncAuthToken: String = "",
+    val isSyncing: Boolean = false,
+    val syncResultMessage: String? = null,
 )
 
 data class UpdateDialogInfo(
