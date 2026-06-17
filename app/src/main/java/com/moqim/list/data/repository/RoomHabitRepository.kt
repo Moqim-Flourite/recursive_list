@@ -17,10 +17,6 @@ class RoomHabitRepository(
 ) : HabitRepository {
 
     override suspend fun seedDefaultsIfNeeded() {
-        // seed 逻辑已移除
-        return
-
-        @Suppress("UNREACHABLE_CODE")
         if (habitTemplateDao.countAll() > 0) return
 
         val now = System.currentTimeMillis()
