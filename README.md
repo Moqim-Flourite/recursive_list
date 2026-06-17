@@ -79,6 +79,13 @@ app/src/main/java/com/moqim/list/
 
 ## 📝 版本历史
 
+- **v1.3** (2026-06-17) — WiFi 同步功能
+  - 手机计划数据通过局域网同步到电脑端
+  - mDNS 自动发现 + 缓存地址 + 手动配置 IP 三级 fallback
+  - 全量快照：月→周→日计划 + 执行任务 + 习惯模板 + 打卡记录
+  - WorkManager 每天凌晨定时同步 + 手动触发
+  - 共用 TimeTrackerApp 的 sync-server 电脑端服务
+
 - **v1.0** (2026-05-29) — 首发版本
   - 三层递归计划体系
   - AI 文本导入功能
