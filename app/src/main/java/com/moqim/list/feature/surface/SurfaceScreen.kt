@@ -527,7 +527,7 @@ private fun SurfaceContent(
 
             item {
                 Text(
-                    text = "Surface Build · v2026.04.06-verify-1",
+                    text = "Surface Build · v1.3-2026.06.18",
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 2.dp, bottom = 6.dp),

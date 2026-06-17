@@ -927,7 +927,7 @@ private fun AboutHeroCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            HeaderBadge("v1 MVP", true)
+            HeaderBadge("v1.3", true)
         }
     }
 }
